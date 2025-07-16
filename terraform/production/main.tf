@@ -2,9 +2,6 @@
 
 provider "aws" {
   region = "ap-southeast-1"
-  profile= "production"
-  # 假設你使用 AWS CLI 的 profiles 或環境變數來管理多帳號憑證
-  # 例如: AWS_PROFILE=production-account
 }
 
 
