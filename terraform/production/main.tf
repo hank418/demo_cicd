@@ -4,6 +4,13 @@ provider "aws" {
   region = "ap-southeast-1"
 }
 
+terraform {
+  backend "s3" {
+    bucket = "democicd-terraform"
+    key    = "healthy-api-production/terraform.tfstate"
+    region = "ap-southeast-1"
+  }
+}
 
 # 1. 建立 VPC 基礎設施
 module "vpc" {

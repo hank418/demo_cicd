@@ -4,7 +4,13 @@ provider "aws" {
   region = "ap-southeast-1"
   profile = var.aws_profile
 }
-
+terraform {
+  backend "s3" {
+    bucket = "democicd-terraform"
+    key    = "healthy-api-staging/terraform.tfstate"
+    region = "ap-southeast-1"
+  }
+}
 
 # 1. 建立 VPC 基礎設施
 module "vpc" {
