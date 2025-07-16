@@ -73,7 +73,10 @@ jobs:
           terraform_version: 1.5.0
 
       - name: Terraform Init
-        run: terraform init 
+        run: |
+          pwd
+          ls -la
+          terraform init 
         working-directory: terraform/${{ github.ref_name }}
 
       - name: Terraform Apply
