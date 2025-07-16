@@ -64,5 +64,5 @@ jobs:
           IMAGE_TAG: ${{ steps.determine_repo_tag.outputs.IMAGE_TAG }}
         run: |
           echo "Building image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./app # 假設 Dockerfile 位於 app/ 目錄
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . # 假設 Dockerfile 位於 app/ 目錄
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
