@@ -10,6 +10,16 @@ variable "aws_region" {
   type        = string
 }
 
+variable "vpc_id" {
+  description = "The ID of the VPC where the ECS app will be deployed."
+  type        = string
+}
+
+variable "subnet_ids" {
+  description = "A list of public subnet IDs for the ECS app."
+  type        = list(string)
+}
+
 variable "image_tag" {
   description = "The Docker image tag to deploy."
   type        = string
