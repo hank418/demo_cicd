@@ -21,14 +21,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS Credentials for Dev
+        if: github.ref == 'refs/heads/dev'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          # 使用 OpenID Connect (OIDC) 自動獲取臨時憑證
-          # 這比使用硬編碼的 AWS Access Key/Secret Key 更安全且推薦
-          role-to-assume: arn:aws:iam::765774143395:role/github-action # <--- 替換為你在 AWS IAM 建立的 OIDC 角色 ARN
+          role-to-assume: arn:aws:iam::1234567890:role/github-action
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Configure AWS Credentials for Staging
+        if: github.ref == 'refs/heads/staging'
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::765774143395:role/github-action
+          aws-region: ${{ env.AWS_REGION }}
+          
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -36,16 +42,6 @@ jobs:
       - name: Determine ECR Repository and Image Tag
         id: determine_repo_tag
         run: |
-          # 判斷是哪個分支觸發的
-          # 對於 push 事件，github.ref_name 就是分支名 (staging 或 production)
-          BRANCH_NAME=""
-          if [[ "${{ github.event_name }}" == "push" ]]; then
-            BRANCH_NAME="${{ github.ref_name }}"
-          else
-            echo "Unsupported event type or action for ECR push. Exiting."
-            exit 1
-          fi
-
           ECR_REPOSITORY="healthy-api-${BRANCH_NAME}"
           # 使用分支名和 commit SHA 作為 Image Tag，確保唯一性
           IMAGE_TAG="${BRANCH_NAME}-${{ github.sha }}" 
