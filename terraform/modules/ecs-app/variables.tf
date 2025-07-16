@@ -52,9 +52,3 @@ variable "desired_count" {
   type        = number
   default     = 1
 }
-
-variable "iam_role_arn" {
-  description = "ARN of the IAM role for ECS task execution."
-  type        = string
-  default = ""
-}
