@@ -14,7 +14,15 @@ variable "image_tag" {
   description = "The Docker image tag to deploy."
   type        = string
 }
+variable "vpc_id" {
+  description = "VPC ID for ECS resources"
+  type        = string
+}
 
+variable "subnet_ids" {
+  description = "List of subnet IDs for ECS resources"
+  type        = list(string)
+}
 variable "task_cpu" {
   description = "CPU units for the ECS task (e.g., '256', '512', '1024')."
   type        = string
@@ -43,4 +51,10 @@ variable "desired_count" {
   description = "Desired number of tasks to run."
   type        = number
   default     = 1
+}
+
+variable "iam_role_arn" {
+  description = "ARN of the IAM role for ECS task execution."
+  type        = string
+  default = ""
 }
