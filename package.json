@@ -1,0 +1,13 @@
+{
+  "name": "healthy-api",
+  "version": "1.0.0",
+  "description": "Node.js API for health check with branch info",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "simple-git": "^3.29.0"
+  }
+}
