@@ -1,11 +1,25 @@
+好的，這就為你提供一個 GitHub Actions 工作流，它會在你的 staging 或 production 分支有更新時（不管是直接 push 還是 Pull Request 合併），自動建置 Docker Image 並將其推送到對應的 AWS ECR Repository。
+
+這個工作流是之前多環境部署策略中的 build-and-push-image 階段，現在我們將它獨立出來並最佳化，使其可以根據觸發事件的分支來決定推送哪個 ECR Repository。
+
+GitHub Actions 工作流 (.github/workflows/push-ecr.yml)
+將以下內容保存為 .github/workflows/push-ecr.yml：
+
+YAML
+
 # .github/workflows/push-ecr.yml
 name: Build and Push Docker Image to ECR
 
 on:
   push:
     branches:
-      - dev
       - staging
+      - production
+  pull_request:
+    branches:
+      - staging
+      - production
+    types: [closed] # 僅在 PR 合併時觸發，避免重複建置
 
 env:
   AWS_REGION: ap-southeast-1 # <--- 替換為你的 AWS 區域
@@ -26,7 +40,7 @@ jobs:
         with:
           # 使用 OpenID Connect (OIDC) 自動獲取臨時憑證
           # 這比使用硬編碼的 AWS Access Key/Secret Key 更安全且推薦
-          role-to-assume: arn:aws:iam::765774143395:role/github-action # <--- 替換為你在 AWS IAM 建立的 OIDC 角色 ARN
+          role-to-assume: arn:aws:iam::YOUR_AWS_ACCOUNT_ID:role/GitHubActionsECRRole # <--- 替換為你在 AWS IAM 建立的 OIDC 角色 ARN
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
@@ -38,9 +52,12 @@ jobs:
         run: |
           # 判斷是哪個分支觸發的
           # 對於 push 事件，github.ref_name 就是分支名 (staging 或 production)
+          # 對於 PR 合併事件 (closed type)，github.base_ref 是目標分支名
           BRANCH_NAME=""
           if [[ "${{ github.event_name }}" == "push" ]]; then
             BRANCH_NAME="${{ github.ref_name }}"
+          elif [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.action }}" == "closed" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            BRANCH_NAME="${{ github.base_ref }}"
           else
             echo "Unsupported event type or action for ECR push. Exiting."
             exit 1
@@ -64,21 +81,5 @@ jobs:
           IMAGE_TAG: ${{ steps.determine_repo_tag.outputs.IMAGE_TAG }}
         run: |
           echo "Building image: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . # 假設 Dockerfile 位於 app/ 目錄
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./app # 假設 Dockerfile 位於 app/ 目錄
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.5.0
-
-      - name: Terraform Init
-        run: terraform init 
-        working-directory: terraform/${{ github.ref_name }}
-
-      - name: Terraform Apply
-        run: |
-          terraform apply -auto-approve \
-            -var="image_tag=${{ needs.build-and-push-image.outputs.image_tag }}"
-        working-directory: terraform/${{ github.ref_name }}
-
