@@ -83,9 +83,14 @@ jobs:
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBBOOK }}
         with:
-          channel-id: T047121EX # Replace with your Slack channel ID
-          status: ${{ job.status }}
-          if: always() # Ensure notification runs regardless of job status
-          fields: github, workflow, job, commit, took
-          fail-field-value: "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Workflow Log>"
-          success-field-value: "Successfully deployed (${{ steps.determine_repo_tag.outputs.IMAGE_TAG }}) to ${{ github.ref_name }}"
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "*GitHub Action build result*: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+            blocks:
+              - type: "section"
+                text:
+                  type: "mrkdwn"
+                  text: "GitHub Action build result: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+
+
