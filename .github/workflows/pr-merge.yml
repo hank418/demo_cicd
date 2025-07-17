@@ -1,17 +1,19 @@
-# .github/workflows/push-ecr.yml
-name: Build and Push Docker Image to ECR
+# .github/workflows/merge-pr.yml
+name: Merge into Production Branch
 
 on:
-  push:
+  pull_request:
+    types: [closed]
     branches:
-      - dev
-      - staging
+      - production
+
 
 env:
-  AWS_REGION: ap-southeast-1 # <--- 替換為你的 AWS 區域
+  AWS_REGION: ap-southeast-1
 
 jobs:
-  build-and-push-image:
+  run-on-merge:
+    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       id-token: write # needed for OIDC
@@ -21,18 +23,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials for Dev
-        if: github.ref == 'refs/heads/dev'
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::1234567890:role/github-action
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Configure AWS Credentials for Staging
+      - name: Configure AWS Credentials for Production
         if: github.ref == 'refs/heads/staging'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::765774143395:role/github-action
+          role-to-assume: arn:aws:iam::765774143396:role/github-action
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR

@@ -2,6 +2,7 @@
 
 provider "aws" {
   region = "ap-southeast-1"
+  profile = var.aws_profile
 }
 
 terraform {
@@ -33,8 +34,6 @@ module "ecs_app" {
   subnet_ids    = module.vpc.public_subnet_ids
   image_tag     = var.image_tag
   desired_count = 1
-  task_cpu      = "512"
-  task_memory   = "1024"
 }
 
 variable "image_tag" {
@@ -44,4 +43,10 @@ variable "image_tag" {
 
 output "alb_production_dns_name" {
   value = module.ecs_app.alb_dns_name
+}
+
+variable "aws_profile" {
+  description = "AWS CLI profile name for local development"
+  type        = string
+  default     = ""
 }
