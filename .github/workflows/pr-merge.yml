@@ -27,7 +27,7 @@ jobs:
         if: github.ref == 'refs/heads/production'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::765774143395:role/github-action
+          role-to-assume: arn:aws:iam::765774143395:role/github-action-production
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
