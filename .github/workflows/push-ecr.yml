@@ -25,7 +25,7 @@ jobs:
         if: github.ref == 'refs/heads/dev'
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::1234567890:role/github-action
+          role-to-assume: arn:aws:iam::765774143395:role/github-action
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Configure AWS Credentials for Staging
