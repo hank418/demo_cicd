@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure AWS Credentials for Production
-        if: github.ref == 'refs/heads/staging'
+        if: github.ref == 'refs/heads/production'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::765774143395:role/github-action
