@@ -42,6 +42,7 @@ jobs:
       - name: Determine ECR Repository and Image Tag
         id: determine_repo_tag
         run: |
+          BRANCH_NAME="${{ github.ref_name }}"
           ECR_REPOSITORY="healthy-api-${BRANCH_NAME}"
           # 使用分支名和 commit SHA 作為 Image Tag，確保唯一性
           IMAGE_TAG="${BRANCH_NAME}-${{ github.sha }}" 
